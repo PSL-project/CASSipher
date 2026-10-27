@@ -1,27 +1,56 @@
 name: Windows EXE
+
 on:
   workflow_dispatch:
   push:
     tags: ['v*']
+
 permissions:
   contents: read
+
 jobs:
   windows-executable:
     runs-on: windows-latest
+    timeout-minutes: 35
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - name: Install dependencies
-        run: python -m pip install -e '.[full,build]'
-      - name: Test encryption engine
-        run: python -m unittest discover -s tests -v
-      - name: Package Windows executable
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Check repository layout
         shell: pwsh
-        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name CASSipher --icon assets/icon.ico --paths src --collect-all tkinterdnd2 --collect-all zstandard main.py
-      - name: Upload Windows build
-        uses: actions/upload-artifact@v4
+        run: |
+          if (-not (Test-Path pyproject.toml)) { throw 'pyproject.toml is missing. Upload the CONTENTS of the CASSipher folder to the repository root.' }
+          if (-not (Test-Path main.py)) { throw 'main.py is missing from the repository root.' }
+          if (-not (Test-Path src/cassipher)) { throw 'src/cassipher is missing.' }
+          if (-not (Test-Path assets/icon.ico)) { throw 'assets/icon.ico is missing.' }
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[full,build]"
+          python -m pip check
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Build CASSipher.exe
+        shell: pwsh
+        run: |
+          python -m PyInstaller --noconfirm --clean --onefile --windowed --name CASSipher --icon assets/icon.ico --paths src --collect-all tkinterdnd2 --collect-all zstandard main.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (-not (Test-Path dist/CASSipher.exe)) { throw 'PyInstaller did not produce dist/CASSipher.exe.' }
+          Get-Item dist/CASSipher.exe | Format-List Name, Length, FullName
+
+      - name: Upload Windows executable
+        uses: actions/upload-artifact@v7
         with:
           name: CASSipher-Windows-x64
           path: dist/CASSipher.exe

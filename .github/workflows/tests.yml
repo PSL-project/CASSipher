@@ -1,27 +1,50 @@
 name: Tests
+
 on:
   push:
     branches: [main, master, development]
   pull_request:
   workflow_dispatch:
+
 permissions:
   contents: read
+
 jobs:
   unit-tests:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         python: ['3.12', '3.13']
-    runs-on: ${{ matrix.os }}
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
-      - name: Install package
-        run: python -m pip install -e '.[full]'
-      - name: Run tests
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Check repository layout
+        shell: bash
+        run: |
+          test -f pyproject.toml || { echo '::error::pyproject.toml not at repository root. Upload the CONTENTS of the CASSipher folder, not the outer folder.'; exit 1; }
+          test -f main.py || { echo '::error::main.py is missing from repository root.'; exit 1; }
+          test -d src/cassipher || { echo '::error::src/cassipher is missing. Ensure the full source tree was uploaded.'; exit 1; }
+
+      - name: Install project and optional components
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[full]"
+          python -m pip check
+
+      - name: Run unit tests
         run: python -m unittest discover -s tests -v
+
       - name: Compile source
         run: python -m compileall -q src main.py
