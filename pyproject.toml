@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cassipher"
+version = "0.1.1"
+description = "Offline Windows encryption and cryptography laboratory"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {file = "LICENSE"}
+authors = [{name = "CASSipher contributors"}]
+keywords = ["cryptography", "encryption", "decryption", "compression", "education"]
+classifiers = ["Programming Language :: Python :: 3", "Operating System :: Microsoft :: Windows", "Topic :: Security :: Cryptography"]
+dependencies = ["cryptography>=44,<49"]
+
+[project.optional-dependencies]
+full = ["zstandard>=0.23,<1", "tkinterdnd2>=0.4,<1"]
+build = ["pyinstaller>=6.10,<7"]
+
+[project.scripts]
+cassipher-cli = "cassipher.cli:main"
+cassipher = "cassipher.gui:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

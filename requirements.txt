@@ -1,0 +1,8 @@
+# Minimum requirements for the Windows-first GUI and core.
+# GUI uses tkinter, bundled with most Windows Python installers.
+cryptography>=44,<49
+# Optional for Zstandard compression and drag-and-drop:
+# zstandard>=0.23,<1
+# tkinterdnd2>=0.4,<1
+# Optional for building EXE:
+# pyinstaller>=6.10,<7
