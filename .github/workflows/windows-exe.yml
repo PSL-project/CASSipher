@@ -1,0 +1,28 @@
+name: Windows EXE
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  windows-executable:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install -e '.[full,build]'
+      - name: Test encryption engine
+        run: python -m unittest discover -s tests -v
+      - name: Package Windows executable
+        shell: pwsh
+        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name CASSipher --icon assets/icon.ico --paths src --collect-all tkinterdnd2 --collect-all zstandard main.py
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: CASSipher-Windows-x64
+          path: dist/CASSipher.exe
+          if-no-files-found: error
