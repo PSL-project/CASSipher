@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.venv/
+venv/
+.env
+.env.*
+
+# Distributions / builds
+build/
+dist/
+*.spec
+*.zip
+
+# User encrypted files, pad/key material, accidental secrets
+*.cwbox
+# Explicit public test-only encrypted fixture (password published in tests)
+!tests/fixtures/legacy-v0.1.0.cwbox
+*.otpkey
+*.key
+*.pem
+*.p12
+*.pfx
+*.encrypted
+*.sqlite3
+pad_usage.sqlite3
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
