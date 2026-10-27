@@ -81,7 +81,12 @@ def inspect_archive(path):
         if len(infos) > MAX_ENTRIES:
             raise ValueError('Archive contains too many entries.')
         for info in infos:
-            parts = _safe_member(info.filename)
+            # On Windows, zipfile.ZipInfo normalizes backslashes in `filename`
+            # to forward slashes, even when *reading* a ZIP. Validate the raw
+            # name captured by ZipInfo before that normalization, otherwise a
+            # crafted entry such as "dir\\bad" would silently become "dir/bad".
+            # ZipInfo.orig_filename is available in supported Python versions.
+            parts = _safe_member(info.orig_filename)
             if info.compress_type != zipfile.ZIP_STORED:
                 raise ValueError('Nested ZIP compression is not supported.')
             if info.flag_bits & 1:
