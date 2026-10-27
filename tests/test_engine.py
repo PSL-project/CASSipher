@@ -80,11 +80,40 @@ class EngineTests(unittest.TestCase):
 
     def test_archive_traversal_and_collision_blocked(self):
         import zipfile
-        for entry in ('../escape','C:/secret','CON.txt','dir\\bad','dir/../evil'):
-            file = self.root/'evil.zip'
-            with zipfile.ZipFile(file,'w',compression=zipfile.ZIP_STORED) as zipf:
-                zipf.writestr(entry, b'X')
+        for entry in ('../escape', 'C:/secret', 'CON.txt', 'dir\\bad', 'dir/../evil'):
+            file = self.root / 'evil.zip'
+            # zipfile normalizes backslashes when WRITING on Windows. Make an
+            # actual malicious on-disk ZIP, rather than testing a sanitized ZIP.
+            safe_for_writer = entry.replace('\\', '/')
+            with zipfile.ZipFile(file, 'w', compression=zipfile.ZIP_STORED) as zipf:
+                zipf.writestr(safe_for_writer, b'X')
+            if entry != safe_for_writer:
+                contents = file.read_bytes()
+                stored = safe_for_writer.encode('utf-8')
+                malicious = entry.encode('utf-8')
+                self.assertEqual(len(stored), len(malicious))
+                # Local file header and central directory each store the name.
+                self.assertEqual(contents.count(stored), 2)
+                file.write_bytes(contents.replace(stored, malicious))
             with self.subTest(entry=entry), self.assertRaises(ValueError):
+                archive.inspect_archive(file)
+
+    def test_archive_backslash_raw_name_not_normalized_on_windows(self):
+        import zipfile
+        from unittest.mock import patch
+        file = self.root / 'raw-backslash.zip'
+        with zipfile.ZipFile(file, 'w', compression=zipfile.ZIP_STORED) as z:
+            z.writestr('dir/file.txt', b'X')
+        data = file.read_bytes()
+        self.assertEqual(data.count(b'dir/file.txt'), 2)
+        file.write_bytes(data.replace(b'dir/file.txt', b'dir\\file.txt'))
+        # Simulate Windows zipfile filename normalization on other platforms.
+        with patch.object(zipfile.os, 'sep', '\\'):
+            with zipfile.ZipFile(file, 'r') as z:
+                info = z.infolist()[0]
+                self.assertEqual(info.filename, 'dir/file.txt')
+                self.assertEqual(info.orig_filename, 'dir\\file.txt')
+            with self.assertRaises(ValueError):
                 archive.inspect_archive(file)
 
     def test_historical_rail_and_chunk_offset(self):
