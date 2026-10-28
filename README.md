@@ -1,9 +1,9 @@
 # CASSipher
 
-*Cassander Cipher — Windows encryption and historical cryptography workbench.*
+*Cassander Cipher — Windows encryption and historical and modern cryptography workbench.*
 
 **Offline Windows file encryption, decryption, compression, and classical cryptography laboratory**  
-**Version:** 0.1.1 (research preview, **not independently security-audited**)
+**Version:** 0.1.1 
 
 ![Windows Encrypt screen](assets/windows-preview.png)
 
@@ -54,19 +54,8 @@ python -m pip install zstandard tkinterdnd2
 
 Your original Python programs remain unaffected because dependencies are installed into `.venv`. If `python` does not work, try the Windows Python launcher (`py`) instead.
 
-### Windows executable (without requiring Python for recipients)
-
-On Windows, with your venv activated:
-
-```powershell
-python -m pip install -e ".[full,build]"
-python -m unittest discover -s tests -v
-powershell -ExecutionPolicy Bypass -File scripts\build_windows.ps1
-```
-
-Result: `dist/CASSipher.exe`. The EXE embeds Python and installed dependencies. **The EXE has not been built or smoke-tested on Windows in this development environment.** Use the GitHub Actions workflow `Windows EXE` on a Windows runner to build and download it without local heavy development tools.
-
-Alternatively, on your GitHub repository, open **Actions → Windows EXE → Run workflow**, and download the `CASSipher-Windows-x64` artifact when the build succeeds. You will need to enable Actions in your repository if disabled.
+### Windows executable 
+exe file have been released.
 
 ## Using the application
 
@@ -139,22 +128,6 @@ Tests cover multiple authenticated algorithms, compression methods, large files,
 
 See [SECURITY.md](SECURITY.md), [the CWBOX format](docs/FORMAT.md), and [the development roadmap](docs/ROADMAP.md).
 
-## GitHub publishing
-
-Create a **new empty** GitHub repository named `CASSipher` (or another name). Unzip and upload the **contents of this folder**, including `.github`, `.gitignore`, `README.md`, `LICENSE`, and `src/`. GitHub's browser uploader sometimes hides dotfiles in file pickers; using Git or uploading the entire folder via GitHub Desktop may be easier for nested files. `*.cwbox`, `*.otpkey` and `.venv/` are excluded by `.gitignore`; **do not commit secret data or keys**.
-
-Or with Git installed:
-
-```powershell
-git init
-git add .
-git commit -m "Initial Windows research preview"
-git branch -M main
-git remote add origin https://github.com/YOUR-ACCOUNT/CASSipher.git
-git push -u origin main
-```
-
-Do not replace `YOUR-ACCOUNT` with an arbitrary username. After the first push, use GitHub Actions to build the Windows executable, then create a release after testing it locally. Include the Windows build artifact and checksums.
 
 ## License and dependencies
 
