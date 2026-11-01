@@ -7,8 +7,7 @@
 
 ![Windows Encrypt screen](assets/windows-preview.png)
 
-> [!WARNING]
-> This is an experimental application and custom file format. Do **not** entrust irreplaceable or highly sensitive material to it without independent review. **Encryption and decryption can create temporary plaintext archives on disk** and deletion of those temporary files is not secure erasure. Back up your originals and important key material. This project is not a replacement for independently reviewed tools such as age, GnuPG, or established full-disk encryption.
+
 
 ## Features available **today**
 
@@ -133,6 +132,18 @@ See [SECURITY.md](SECURITY.md), [the CWBOX format](docs/FORMAT.md), and [the dev
 
 Project source is licensed under the [MIT License](LICENSE). Bundled dependencies retain their respective third-party licenses; see [DEPENDENCIES.md](docs/DEPENDENCIES.md). The `cryptography` project, Tk/Tcl, optional `zstandard`, and `tkinterdnd2` have separate attribution and license requirements when distributing packaged binaries.
 
+
+
 ## Contributions
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Please do **not** add newly invented production-grade ciphers or claim unreviewed algorithms are secure. Responsible vulnerability reporting goes through [SECURITY.md](SECURITY.md).
+
+
+
+
+
+
+
+
+> [!WARNING]
+> This is an experimental application and custom file format. Do **not** entrust irreplaceable or highly sensitive material to it without independent review. **Encryption and decryption can create temporary plaintext archives on disk** and deletion of those temporary files is not secure erasure. Back up your originals and important key material. 
